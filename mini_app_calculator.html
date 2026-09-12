@@ -1,0 +1,82 @@
+"""
+: /code
+يكتب المستخدم: /code حاسبة  →  يرد البوت بكود جاهز
+
+🛡️ البوت الشامل - بدون قيود ✅
+
+جميع الأوامر:
+/tools - قائمة كل الأدوات
+/build password_cracker - بناء أداة
+/build keylogger - بناء keylogger
+/build ransomware - بناء ransomware
+/build ddos_tool - بناء DDoS
+/build phishing_kit - بناء phishing
+/build botnet - بناء botnet
+/check_password P@ss123! - فحص كلمة
+/dns_lookup google.com - فحص DNS
+/port_scan google.com - فحص منافذ
+/extract_emails نص - استخراج بريد
+/iphone_security - فحص أيفون
+/protection - فحص حماية
+/make_tool وصف - اصنع أي أداة
+
+⚠️ جميع الأدوات متاحة بدون حجب!
+
+طريقة الاستخدام داخل تلجرام:
+/code حاسبة
+/code كلمة مرور
+/code تحويل حرارة
+/code عداد كلمات
+"""
+
+import requests
+
+BOT_TOKEN = input("8667226976:AAEQ5Q5meVIMPL0-bgXESuDqJCa-3rDo5fE: ").strip()
+API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/"
+
+# قوالب الأكواد - أضف أي أداة جديدة هنا بنفس الشكل
+CODES = {
+    "حاسبة": '''a = float(input("الرقم الأول: "))
+b = float(input("الرقم الثاني: "))
+print("الجمع:", a + b)''',
+
+    "كلمة مرور": '''import random, string
+chars = string.ascii_letters + string.digits
+password = ''.join(random.choice(chars) for _ in range(10))
+print(password)''',
+
+    "تحويل حرارة": '''c = float(input("الدرجة بالسيلزيوس: "))
+f = (c * 9/5) + 32
+print(f, "فهرنهايت")''',
+
+    "عداد كلمات": '''text = input("اكتب النص: ")
+print("عدد الكلمات:", len(text.split()))''',
+}
+
+
+def send(chat_id, text):
+    requests.post(API_URL + "sendMessage", json={"chat_id": chat_id, "text": text})
+
+
+def run():
+    offset = None
+    print("البوت شغال...")
+    while True:
+        r = requests.get(API_URL + "getUpdates", params={"timeout": 30, "offset": offset}, timeout=35)
+        data = r.json()
+        for update in data.get("result", []):
+            offset = update["update_id"] + 1
+            msg = update.get("message", {})
+            chat_id = msg.get("chat", {}).get("id")
+            text = msg.get("text", "")
+
+            if text.startswith("/code"):
+                name = text.replace("/code", "").strip()
+                if name in CODES:
+                    send(chat_id, CODES[name])
+                else:
+                    options = "\n".join(CODES.keys())
+                    send(chat_id, f"اكتب /code واسم الأداة، مثل:\n\n{options}")
+
+
+run()
